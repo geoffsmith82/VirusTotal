@@ -87,6 +87,14 @@ Type
     scans: TvtAVItemsFile;
   End;
 
+  TvtIPreport = Packed Record
+  Public
+    verbose_msg, resource, url, scan_id, scan_date, permalink,
+      filescan_id: String;
+    response_code, total, positives: Integer;
+    scans: TvtAVItemsURL;
+  End;
+
   TvtURLReport = Packed Record
     verbose_msg, resource, url, scan_id, scan_date, permalink,
       filescan_id: String;
@@ -115,6 +123,7 @@ Type
       : TvtURLReport; overload;
     function reportURL(Const URLs: TArray<String>; scan: Boolean = False)
       : TArray<TvtURLReport>; overload;
+    function reportIpAddress(Const IP: String): TArray<TvtURLReport>; overload;
     constructor Create;
     destructor Destroy; override;
   published
@@ -124,7 +133,6 @@ Type
 implementation
 
 uses
-  System.IOUtils,
   System.SysUtils,
   System.Net.HttpClient,
   System.Net.Mime;

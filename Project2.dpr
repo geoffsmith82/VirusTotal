@@ -15,14 +15,12 @@ begin
   VT := TVirusTotalAPI.Create;
   try
     { TODO -oUser -cConsole Main : Insert code here }
-    ResultScan := VT.reportURL(['https://codmasters.ru/',
-      'http://galaxy.mobstudio.ru/'])[1];
-    Writeln(ResultScan.scans.Opera.result);
+    ResultScan := VT.reportURL('https://codmasters.ru/');
+    Writeln('Opera: ', ResultScan.scans.Opera.result);
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
   end;
   VT.Free;
   Readln;
-
 end.
