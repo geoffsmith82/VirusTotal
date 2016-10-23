@@ -2,37 +2,31 @@ unit VirusTotal;
 
 interface
 
-{ /$DEFINE vtDateTimeHelper }
-
-uses
-{$IFDEF vtDateTimeHelper}
-  DateTimeHelper,
-{$ENDIF}
-  XSuperObject;
+uses system.json;
 
 { TODO -oOwner -cGeneral : Преобразовать время: Строка=>TDateTime }
 Type
-  TvtFileSend = Packed Record
+  TvtFileSend = record
     verbose_msg, resource, scan_id, permalink, sha256, sha1, md5: String;
   End;
 
-  TvtURLSend = Packed Record
+  TvtURLSend = record//Packed Record
   Public
     verbose_msg, resource, url, scan_id, permalink: String;
     scan_date: String;
   End;
 
-  TvtAntiVirusItemFile = Packed Record
+  TvtAntiVirusItemFile = record
     detected: Boolean;
     version, result, update: String;
   End;
 
-  TvtAntiVirusItemURL = Packed Record
+  TvtAntiVirusItemURL = record
     detected: Boolean;
     result: String;
   End;
 
-  TvtAVItemsURL = Packed Record
+  TvtAVItemsURL = record
   public
     Opera, TrendMicro, Phishtank, BitDefender, MalwareDomainList, ParetoLogic,
       Avira, Wepawet: TvtAntiVirusItemURL;
@@ -44,9 +38,67 @@ Type
     G_Data: TvtAntiVirusItemURL;
     [ALIAS('Websense ThreatSeeker')]
     WebsenseThreatSeeker: TvtAntiVirusItemURL;
+    CLEANMX,
+    Rising,
+    OpenPhish,
+    VXVault,
+    ZDBZeus,
+    AutoShun,
+    ZCloudsec,
+    PhishLabs,
+    Zerofox,
+    K7AntiVirus,
+    SecureBrain,
+    Quttera,
+    AegisLabWebGuard,
+    ZeusTracker,
+    zvelo,
+    GoogleSafebrowsing,
+    FraudScore,
+    Kaspersky,
+    Certly,
+    CSIRT,
+    CyberCrime,
+    MalwarePatrol,
+    Webutation,
+    Trustwave,
+    WebSecurityGuard,
+    desenmascarame,
+    ADMINUSLabs,
+    MalwarebyteshpHosts,
+    AlienVault,
+    Emsisoft,
+    SpyEyeTracker,
+    malwarescomURLchecker,
+    Malwared,
+    StopBadware,
+    AntiyAVL,
+    SCUMWAREorg,
+    FraudSense,
+    ComodoSiteInspector,
+    Malekal,
+    ESET,
+    Sophos,
+    YandexSafebrowsing,
+    Spam404,
+    Nucleon,
+    MalwareDomainBlocklist,
+    Blueliv,
+    Netcraft,
+    PalevoTracker,
+    CRDF,
+    ThreatHive,
+    Tencent,
+    URLQuery,
+    SucuriSiteCheck,
+    Fortinet,
+    ZeroCERT,
+    BaiduInternational,
+    securolytics :TvtAntiVirusItemURL;
+
   End;
 
-  TvtAVItemsFile = Packed Record
+  TvtAVItemsFile = record
   public
     AVG, AVware, AegisLab, Agnitum, Alibaba, Arcabit, Avast, Avira, BitDefender,
       Bkav, ByteHero, CMC, ClamAV, Comodo, Cyren, Emsisoft, Fortinet, GData,
@@ -80,7 +132,7 @@ Type
     TrendMicro_HouseCall: TvtAntiVirusItemFile;
   End;
 
-  TvtFileReport = Packed Record
+  TvtFileReport = record
     scan_id, sha1, resource, scan_date, permalink, verbose_msg, sha256,
       md5: String;
     response_code, total, positives: Integer;
@@ -95,7 +147,7 @@ Type
     scans: TvtAVItemsURL;
   End;
 
-  TvtURLReport = Packed Record
+  TvtURLReport = record
     verbose_msg, resource, url, scan_id, scan_date, permalink,
       filescan_id: String;
     response_code, total, positives: Integer;
@@ -103,31 +155,29 @@ Type
   End;
 {$M+}
 
-  TVirusTotalAPI = Class
-  Strict Private
-  Const
+  TVirusTotalAPI = class
+  strict private
+  const
     SERVER = 'https://www.virustotal.com/vtapi/v2/';
   private
-    FApiKey: String;
+    FApiKey: string;
+    function handleURLScans(scans : TJsonObject):TvtAVItemsURL;
+    function handleFileScans(scans : TJsonObject):TvtAVItemsFile;
   public
-    Function ScanFile(Const FileName: String): TvtFileSend;
-    Function RescanFile(Const Hash: String): TvtFileSend; overload;
-    Function RescanFile(Const Hash: TArray<String>)
-      : TArray<TvtFileSend>; overload;
-    Function reportFile(Const Hash: TArray<String>)
-      : TArray<TvtFileReport>; overload;
-    Function reportFile(Const Hash: String): TvtFileReport; overload;
-    Function scanURL(Const URLs: TArray<String>): TArray<TvtURLSend>; overload;
-    Function scanURL(Const url: String): TvtURLSend; overload;
-    function reportURL(Const url: String; scan: Boolean = False)
-      : TvtURLReport; overload;
-    function reportURL(Const URLs: TArray<String>; scan: Boolean = False)
-      : TArray<TvtURLReport>; overload;
-    function reportIpAddress(Const IP: String): TArray<TvtURLReport>; overload;
+    function ScanFile(const FileName: string): TvtFileSend;
+    function RescanFile(const Hash: string): TvtFileSend; overload;
+    function RescanFile(const Hash: TArray<string>): TArray<TvtFileSend>; overload;
+    function reportFile(const Hash: TArray<string>): TArray<TvtFileReport>; overload;
+    function reportFile(const Hash: string): TvtFileReport; overload;
+    function scanURL(const URLs: TArray<string>): TArray<TvtURLSend>; overload;
+    function scanURL(const url: string): TvtURLSend; overload;
+    function reportURL(const url: string; scan: Boolean = False): TvtURLReport; overload;
+    function reportURL(const URLs: TArray<string>; scan: Boolean = False): TArray<TvtURLReport>; overload;
+//    function reportIpAddress(Const IP: String): TArray<TvtURLReport>; overload;
     constructor Create;
     destructor Destroy; override;
   published
-    property ApiKey: String read FApiKey write FApiKey;
+    property ApiKey: string read FApiKey write FApiKey;
   End;
 
 implementation
@@ -149,103 +199,308 @@ begin
   inherited;
 end;
 
+procedure handleURLScanner(actual:String;scannerName:String;var scanner:TvtAntiVirusItemUrL;source:TJSonObject);
+begin
+if(actual=scannerName) then
+ begin
+  if(source.Values['detected'].Value='true') then
+    begin
+      scanner.detected := True;
+    end
+  else
+    begin
+      scanner.detected := false;
+    end;
+  scanner.result := source.Values['result'].Value;
+ end;
+end;
+
+function TVirusTotalAPI.handleFileScans(scans : TJsonObject):TvtAVItemsFile;
+var
+  arr : TJsonArray;
+  i: Integer;
+  scanner : TJsonObject;
+  scannerName : String;
+begin
+
+
+end;
+
+function TVirusTotalAPI.handleURLScans(scans : TJsonObject):TvtAVItemsURL;
+var
+  arr : TJsonArray;
+  i: Integer;
+  scanner : TJsonObject;
+  scannerName : String;
+begin
+  arr := TJsonArray(scans);
+  for i := 0 to arr.Count-1 do
+     begin
+       scannerName := TJsonPair(arr.Items[i]).JsonString.Value;
+       scanner := TJSONObject(TJsonPair(arr.Items[i]).JsonValue);
+{       handleScanner(scannerName,'Opera',result.Opera,scanner);
+       handleScanner(scannerName,'TrendMicro',result.TrendMicro,scanner);
+       handleScanner(scannerName,'Phishtank',result.Phishtank,scanner);
+       handleScanner(scannerName,'BitDefender',result.BitDefender,scanner);
+       handleScanner(scannerName,'MalwareDomainList',result.MalwareDomainList,scanner);
+       handleScanner(scannerName,'ParetoLogic',result.ParetoLogic,scanner);
+       handleScanner(scannerName,'Avira',result.Avira,scanner);
+       handleScanner(scannerName,'Wepawet',result.Wepawet,scanner);
+       handleScanner(scannerName,'Dr.Web',result.drWeb,scanner);
+       handleScanner(scannerName,'Malc0de Database',result.Malc0deDatabase,scanner);
+       handleScanner(scannerName,'G-Data',result.G_Data,scanner);
+       handleScanner(scannerName,'Websense ThreatSeeker',result.WebsenseThreatSeeker,scanner);
+}
+       handleURLScanner(scannerName,'CLEAN MX',result.CLEANMX,scanner);
+       handleURLScanner(scannerName,'Rising',result.Rising,scanner);
+       handleURLScanner(scannerName,'OpenPhish',result.OpenPhish,scanner);
+       handleURLScanner(scannerName,'VX Vault',result.VXVault,scanner);
+       handleURLScanner(scannerName,'ZDB Zeus',result.ZDBZeus,scanner);
+       handleURLScanner(scannerName,'AutoShun',result.AutoShun,scanner);
+       handleURLScanner(scannerName,'ZCloudsec',result.ZCloudsec,scanner);
+       handleURLScanner(scannerName,'PhishLabs',result.PhishLabs,scanner);
+       handleURLScanner(scannerName,'Zerofox',result.Zerofox,scanner);
+       handleURLScanner(scannerName,'K7AntiVirus',result.K7AntiVirus,scanner);
+       handleURLScanner(scannerName,'SecureBrain',result.SecureBrain,scanner);
+       handleURLScanner(scannerName,'Quttera',result.Quttera,scanner);
+       handleURLScanner(scannerName,'AegisLab WebGuard',result.AegisLabWebGuard,scanner);
+       handleURLScanner(scannerName,'MalwareDomainList',result.MalwareDomainList,scanner);
+       handleURLScanner(scannerName,'ZeusTracker',result.ZeusTracker,scanner);
+       handleURLScanner(scannerName,'zvelo',result.zvelo,scanner);
+       handleURLScanner(scannerName,'Google Safebrowsing',result.GoogleSafebrowsing,scanner);
+       handleURLScanner(scannerName,'FraudScore',result.FraudScore,scanner);
+       handleURLScanner(scannerName,'Kaspersky',result.Kaspersky,scanner);
+       handleURLScanner(scannerName,'BitDefender',result.BitDefender,scanner);
+       handleURLScanner(scannerName,'Wepawet',result.Wepawet,scanner);
+       handleURLScanner(scannerName,'Certly',result.Certly,scanner);
+       handleURLScanner(scannerName,'G-Data',result.G_Data,scanner);
+       handleURLScanner(scannerName,'C-SIRT',result.CSIRT,scanner);
+       handleURLScanner(scannerName,'CyberCrime',result.CyberCrime,scanner);
+       handleURLScanner(scannerName,'Websense ThreatSeeker',result.WebsenseThreatSeeker,scanner);
+       handleURLScanner(scannerName,'MalwarePatrol',result.MalwarePatrol,scanner);
+       handleURLScanner(scannerName,'Webutation',result.Webutation,scanner);
+       handleURLScanner(scannerName,'Trustwave',result.Trustwave,scanner);
+       handleURLScanner(scannerName,'Web Security Guard',result.WebSecurityGuard,scanner);
+       handleURLScanner(scannerName,'desenmascara.me',result.desenmascarame,scanner);
+       handleURLScanner(scannerName,'ADMINUSLabs',result.ADMINUSLabs,scanner);
+       handleURLScanner(scannerName,'Malwarebytes hpHosts',result.MalwarebyteshpHosts,scanner);
+       handleURLScanner(scannerName,'Dr.Web',result.DrWeb,scanner);
+       handleURLScanner(scannerName,'AlienVault',result.AlienVault,scanner);
+       handleURLScanner(scannerName,'Emsisoft',result.Emsisoft,scanner);
+       handleURLScanner(scannerName,'Malc0de Database',result.Malc0deDatabase,scanner);
+       handleURLScanner(scannerName,'SpyEyeTracker',result.SpyEyeTracker,scanner);
+       handleURLScanner(scannerName,'malwares.com URL checker',result.malwarescomURLchecker,scanner);
+       handleURLScanner(scannerName,'Phishtank',result.Phishtank,scanner);
+       handleURLScanner(scannerName,'Malwared',result.Malwared,scanner);
+       handleURLScanner(scannerName,'Avira',result.Avira,scanner);
+       handleURLScanner(scannerName,'StopBadware',result.StopBadware,scanner);
+       handleURLScanner(scannerName,'Antiy-AVL',result.AntiyAVL,scanner);
+       handleURLScanner(scannerName,'SCUMWARE.org',result.SCUMWAREorg,scanner);
+       handleURLScanner(scannerName,'FraudSense',result.FraudSense,scanner);
+       handleURLScanner(scannerName,'Opera',result.Opera,scanner);
+       handleURLScanner(scannerName,'Comodo Site Inspector',result.ComodoSiteInspector,scanner);
+       handleURLScanner(scannerName,'Malekal',result.Malekal,scanner);
+       handleURLScanner(scannerName,'ESET',result.ESET,scanner);
+       handleURLScanner(scannerName,'Sophos',result.Sophos,scanner);
+       handleURLScanner(scannerName,'Yandex Safebrowsing',result.YandexSafebrowsing,scanner);
+       handleURLScanner(scannerName,'Spam404',result.Spam404,scanner);
+       handleURLScanner(scannerName,'Nucleon',result.Nucleon,scanner);
+       handleURLScanner(scannerName,'Malware Domain Blocklist',result.MalwareDomainBlocklist,scanner);
+       handleURLScanner(scannerName,'Blueliv',result.Blueliv,scanner);
+       handleURLScanner(scannerName,'Netcraft',result.Netcraft,scanner);
+       handleURLScanner(scannerName,'PalevoTracker',result.PalevoTracker,scanner);
+       handleURLScanner(scannerName,'CRDF',result.CRDF,scanner);
+       handleURLScanner(scannerName,'ThreatHive',result.ThreatHive,scanner);
+       handleURLScanner(scannerName,'ParetoLogic',result.ParetoLogic,scanner);
+       handleURLScanner(scannerName,'Tencent',result.Tencent,scanner);
+       handleURLScanner(scannerName,'URLQuery',result.URLQuery,scanner);
+       handleURLScanner(scannerName,'Sucuri SiteCheck',result.SucuriSiteCheck,scanner);
+       handleURLScanner(scannerName,'Fortinet',result.Fortinet,scanner);
+       handleURLScanner(scannerName,'ZeroCERT',result.ZeroCERT,scanner);
+       handleURLScanner(scannerName,'Baidu-International',result.BaiduInternational,scanner);
+       handleURLScanner(scannerName,'securolytics',result.securolytics,scanner);
+     end;
+end;
+
+
 function TVirusTotalAPI.reportFile(const Hash: String): TvtFileReport;
 begin
   result := reportFile([Hash])[0];
 end;
 
-function TVirusTotalAPI.reportURL(const url: String; scan: Boolean)
-  : TvtURLReport;
+function TVirusTotalAPI.reportURL(const url: String; scan: Boolean): TvtURLReport;
 begin
   result := reportURL([url], scan)[0];
 end;
 
-function TVirusTotalAPI.reportURL(const URLs: TArray<String>; scan: Boolean)
-  : TArray<TvtURLReport>;
+
+
+function TVirusTotalAPI.reportURL(const URLs: TArray<String>; scan: Boolean): TArray<TvtURLReport>;
 Const
   API = 'url/report';
 var
-  HTTP: THTTPClient;
-  Part: TMultipartFormData;
-  I: Integer;
-  X: ISuperArray;
+  HTTP          : THTTPClient;
+  Part          : TMultipartFormData;
+  requestResult : String;
+  I             : Integer;
+  jsonx         : TJSonObject;
+  item          : TJsonObject;
+  scans         : TJsonObject;
 begin
   HTTP := THTTPClient.Create;
   Part := TMultipartFormData.Create;
   try
     Part.AddField('resource', String.Join(#13#10, URLs));
     if scan then
-      Part.AddField('scan', '1');
+      begin
+       Part.AddField('scan', '1');
+      end;
     Part.AddField('apikey', ApiKey);
-    X := SA(HTTP.Post(SERVER + API, Part).ContentAsString(TEncoding.UTF8));
-    SetLength(result, Length(URLs));
+    requestResult := HTTP.Post(SERVER + API, Part).ContentAsString(TEncoding.UTF8);
+    jsonx := TJSONObject(jsonx.ParseJSONValue(requestResult));
+
+    SetLength(result, system.JSON.TJSonArray(jsonx).Count);
     if Length(URLs) > 1 then
-    BEGIN
-      for I := 0 to X.Length - 1 do
-        result[I] := TSuperRecord<TvtURLReport>.FromJSON(X.O[I]);
-    END
+      begin
+      for I := 0 to system.JSON.TJSonArray(jsonx).Count - 1 do
+       begin
+        item  := TJSONObject(system.JSON.TJSonArray(jsonx).Items[i].Value);
+        result[I].verbose_msg   := item.Values['verbose_msg'].Value;
+        result[i].resource      := item.Values['resource'].Value;
+        result[i].url           := item.Values['url'].Value;
+        result[i].scan_id       := item.Values['scan_id'].Value;
+        result[i].scan_date     := item.Values['scan_date'].Value;
+        result[i].permalink     := item.Values['permalink'].Value;
+        result[i].filescan_id   := item.Values['filescan_id'].Value;
+        result[i].response_code := StrToInt(item.Values['response_code'].Value);
+        result[i].total         := StrToInt(item.Values['total'].Value);
+        result[i].positives     := StrToInt(item.Values['positives'].Value);
+        scans := TJsonObject(item.Values['scans']);
+        Result[0].scans := handleURLScans(scans);
+       end;
+      end
     else
-      result[0] := TSuperRecord<TvtURLReport>.FromJSON(X.AsJSON);
+      begin
+        result[0].scan_id       := jsonx.Values['scan_id'].Value;
+        result[0].verbose_msg   := TJsonObject(jsonx.Values['verbose_msg']).Value;
+        result[0].resource      := jsonx.Values['resource'].Value;
+        result[0].url           := jsonx.Values['url'].Value;
+        result[0].scan_date     := jsonx.Values['scan_date'].Value;
+        result[0].permalink     := jsonx.Values['permalink'].Value;
+        result[0].filescan_id   := jsonx.Values['filescan_id'].Value;
+        result[0].response_code := StrToInt(jsonx.Values['response_code'].Value);
+        result[0].total         := StrToInt(jsonx.Values['total'].Value);
+        result[0].positives     := StrToInt(jsonx.Values['positives'].Value);
+        scans := TJsonObject(jsonx.Values['scans']);
+        writeln(scans.ToJSON);
+        Result[0].scans := handleURLScans(scans);
+      end;
   finally
-    Part.Free;
-    HTTP.Free;
+    FreeAndNil(Part);
+    FreeAndNil(HTTP);
+    FreeAndNil(jsonx);
   end;
 end;
 
-function TVirusTotalAPI.reportFile(const Hash: TArray<String>)
-  : TArray<TvtFileReport>;
+function TVirusTotalAPI.reportFile(const Hash: TArray<String>): TArray<TvtFileReport>;
 Const
   API = 'file/report';
 var
-  HTTP: THTTPClient;
-  Part: TMultipartFormData;
-
-  I: Integer;
-  Y: ISuperArray;
+  HTTP          : THTTPClient;
+  Part          : TMultipartFormData;
+  requestResult : String;
+  I             : Integer;
+  jsonx         : TJSonObject;
+  item          : TJsonObject;
+  scans         : TJsonObject;
 begin
   HTTP := THTTPClient.Create;
   Part := TMultipartFormData.Create;
   try
     Part.AddField('resource', String.Join(', ', Hash));
     Part.AddField('apikey', ApiKey);
-    Y := SA(HTTP.Post(SERVER + API, Part).ContentAsString(TEncoding.UTF8));
-    SetLength(result, Length(Hash));
-    if Length(Hash) > 1 then
-    Begin
-      for I := 0 to Y.Length - 1 do
-        result[I] := TSuperRecord<TvtFileReport>.FromJSON(Y.O[I]);
-    End
-    else
-      result[0] := TSuperRecord<TvtFileReport>.FromJSON(Y.AsJSON);
-  finally
-    Part.Free;
-    HTTP.Free;
-  end;
+    requestResult := HTTP.Post(SERVER + API, Part).ContentAsString(TEncoding.UTF8);
+    jsonx := TJSONObject(jsonx.ParseJSONValue(requestResult));
 
+    SetLength(result, system.JSON.TJSonArray(jsonx).Count);
+    if Length(Hash) > 1 then
+     begin
+      for I := 0 to TJSonArray(jsonx).Count - 1 do
+        begin
+          item  := TJSONOBject(system.JSON.TJSonArray(jsonx).Items[i]);
+          result[i].scan_id       := item.Values['scan_id'].Value;
+          result[i].sha1          := item.Values['sha1'].Value;
+          result[i].resource      := item.Values['resource'].Value;
+          result[i].scan_date     := item.Values['scan_date'].Value;
+          result[i].permalink     := item.Values['permalink'].Value;
+          result[i].verbose_msg   := item.Values['verbose_msg'].Value;
+          result[i].sha256        := item.Values['sha256'].Value;
+          result[i].md5           := item.Values['md5'].Value;
+          result[i].response_code := StrToInt(item.Values['response_code'].Value);
+          result[i].total         := StrToInt(item.Values['total'].Value);
+          result[i].positives     := StrToInt(item.Values['positives'].Value);
+          scans := TJsonObject(item.Values['scans']);
+          result[i].scans := handleFileScans(scans);
+        end;
+     end
+    else
+     begin
+      result[0].scan_id       := jsonx.Values['scan_id'].Value;
+      result[0].sha1          := jsonx.Values['sha1'].Value;
+      result[0].resource      := jsonx.Values['resource'].Value;
+      result[0].scan_date     := jsonx.Values['scan_date'].Value;
+      result[0].permalink     := jsonx.Values['permalink'].Value;
+      result[0].verbose_msg   := jsonx.Values['verbose_msg'].Value;
+      result[0].sha256        := jsonx.Values['sha256'].Value;
+      result[0].md5           := jsonx.Values['md5'].Value;
+      result[0].response_code := StrToInt(jsonx.Values['response_code'].Value);
+      result[0].total         := StrToInt(jsonx.Values['total'].Value);
+      result[0].positives     := StrToInt(jsonx.Values['positives'].Value);
+      scans := TJsonObject(jsonx.Values['scans']);
+      result[0].scans := handleFileScans(scans);
+     end;
+  finally
+    FreeAndNil(Part);
+    FreeAndNil(HTTP);
+    FreeAndNil(jsonx);
+  end;
 end;
 
-function TVirusTotalAPI.RescanFile(const Hash: TArray<String>)
-  : TArray<TvtFileSend>;
+function TVirusTotalAPI.RescanFile(const Hash: TArray<String>): TArray<TvtFileSend>;
 Const
   API = 'file/rescan';
 var
-  HTTP: THTTPClient;
-  Part: TMultipartFormData;
-  I: Integer;
-  X: ISuperArray;
+  HTTP          : THTTPClient;
+  Part          : TMultipartFormData;
+  I             : Integer;
+  requestResult : String;
+  jsonx         : TJSonObject;
+  item          : TJsonObject;
 begin
   HTTP := THTTPClient.Create;
   Part := TMultipartFormData.Create;
   try
     Part.AddField('resource', String.Join(', ', Hash));
     Part.AddField('apikey', ApiKey);
-    X := SA(HTTP.Post(SERVER + API, Part).ContentAsString(TEncoding.UTF8));
-    SetLength(result, X.Length);
-    for I := 0 to X.Length - 1 do
-      result[I] := TSuperRecord<TvtFileSend>.FromJSON(X.O[I]);
+    requestResult := HTTP.Post(SERVER + API, Part).ContentAsString(TEncoding.UTF8);
+    jsonx := TJSONObject(jsonx.ParseJSONValue(requestResult));
+
+    SetLength(result, TJSONOBject(system.JSON.TJSonArray(jsonx)).Count);
+    for I := 0 to TJSONOBject(system.JSON.TJSonArray(jsonx)).Count - 1 do
+      begin
+        item  := TJSONOBject(system.JSON.TJSonArray(jsonx).Items[i]);
+        result[I].verbose_msg := item.Values['verbose_msg'].Value;
+        result[i].resource    := item.Values['resource'].Value;
+        result[i].scan_id     := item.Values['scan_id'].Value;
+        result[i].permalink   := item.Values['permalink'].Value;
+        result[i].sha256      := item.Values['sha256'].Value;
+        result[i].sha1        := item.Values['sha1'].Value;
+        result[i].md5         := item.Values['md5'].Value;
+      end;
   finally
-    Part.Free;
-    HTTP.Free;
+    FreeAndNil(Part);
+    FreeAndNil(HTTP);
+    FreeAndNil(jsonx);
   end;
 end;
 
@@ -258,19 +513,30 @@ Function TVirusTotalAPI.ScanFile(const FileName: String): TvtFileSend;
 Const
   API = 'file/scan';
 var
-  HTTP: THTTPClient;
-  Part: TMultipartFormData;
+  HTTP          : THTTPClient;
+  Part          : TMultipartFormData;
+  requestResult : String;
+  jsonx         : TJSONObject;
 begin
-  HTTP := THTTPClient.Create;
-  Part := TMultipartFormData.Create;
+  HTTP  := THTTPClient.Create;
+  Part  := TMultipartFormData.Create;
+  jsonx := TJSONObject.Create;
   try
     Part.AddFile('file', FileName);
     Part.AddField('apikey', ApiKey);
-    result := TSuperRecord<TvtFileSend>.FromJSON(HTTP.Post(SERVER + API, Part)
-      .ContentAsString(TEncoding.UTF8));
+    requestResult := HTTP.Post(SERVER + API, Part).ContentAsString(TEncoding.UTF8);
+    jsonx := TJSONObject(jsonx.ParseJSONValue(requestResult));
+    Result.verbose_msg := jsonx.Values['verbose_msg'].Value;
+    Result.resource    := jsonx.Values['resource'].Value;
+    Result.scan_id     := jsonx.Values['scan_id'].Value;
+    Result.permalink   := jsonx.Values['permalink'].Value;
+    Result.sha256      := jsonx.Values['sha256'].Value;
+    Result.sha1        := jsonx.Values['sha1'].Value;
+    Result.md5         := jsonx.Values['md5'].Value;
   finally
-    Part.Free;
-    HTTP.Free;
+    FreeAndNil(Part);
+    FreeAndNil(HTTP);
+    FreeAndNil(jsonx);
   end;
 end;
 
@@ -283,28 +549,48 @@ function TVirusTotalAPI.scanURL(const URLs: TArray<String>): TArray<TvtURLSend>;
 Const
   API = 'url/scan';
 var
-  HTTP: THTTPClient;
-  Part: TMultipartFormData;
-  I: Integer;
-  X: ISuperArray;
+  HTTP          : THTTPClient;
+  Part          : TMultipartFormData;
+  I             : Integer;
+  requestResult : String;
+  jsonX         : TJSonObject;
+  item          : TJSONObject;
 begin
   HTTP := THTTPClient.Create;
   Part := TMultipartFormData.Create;
   try
     Part.AddField('url', String.Join(#13#10, URLs));
     Part.AddField('apikey', ApiKey);
-    X := SA(HTTP.Post(SERVER + API, Part).ContentAsString(TEncoding.UTF8));
+    requestResult := HTTP.Post(SERVER + API, Part).ContentAsString(TEncoding.UTF8);
+    jsonx := TJSONObject(jsonx.ParseJSONValue(requestResult));
     SetLength(result, Length(URLs));
+
     if Length(URLs) > 1 then
-    BEGIN
-      for I := 0 to X.Length - 1 do
-        result[I] := TSuperRecord<TvtURLSend>.FromJSON(X.O[I]);
-    END
+     begin
+      for I := 0 to TJSONOBject(system.JSON.TJSonArray(jsonx)).Count-1 do
+       begin
+        item := TJSONObject(system.JSON.TJSonArray(jsonx).Items[i]);
+        result[i].verbose_msg := item.Values['verbose_msg'].Value;
+        result[i].resource    := item.Values['resource'].Value;
+        result[i].url         := item.Values['url'].Value;
+        result[i].scan_id     := item.Values['scan_id'].Value;
+        result[i].permalink   := item.Values['permalink'].Value;
+        result[i].scan_date   := item.Values['scan_date'].Value;
+       end;
+     end
     else
-      result[0] := TSuperRecord<TvtURLSend>.FromJSON(X.AsJSON);
+       begin
+        result[0].verbose_msg := jsonx.Values['verbose_msg'].Value;
+        result[0].resource    := jsonx.Values['resource'].Value;
+        result[0].url         := jsonx.Values['url'].Value;
+        result[0].scan_id     := jsonx.Values['scan_id'].Value;
+        result[0].permalink   := jsonx.Values['permalink'].Value;
+        result[0].scan_date   := jsonx.Values['scan_date'].Value;
+       end;
   finally
-    Part.Free;
-    HTTP.Free;
+    FreeAndNil(Part);
+    FreeAndNil(HTTP);
+    FreeAndNil(jsonx);
   end;
 end;
 
