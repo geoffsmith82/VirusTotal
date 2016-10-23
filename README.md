@@ -1,15 +1,12 @@
 # VirusTotal
 
-VirusTotal - класс для работы с одноименным сервисом для проверки файлов на вирусы.
+TVirusTotal - class to work with the VirusTotal service to check files for viruses.
 
-Как работать
+How to Use
 ---------------
-1. Скачайте файл VirusTotal.pas
-2. Добавьте файл VirusTotal.pas в ваш проект.
-3. Теперь вы можете работать с сервисом https://www.virustotal.com.
+1. Download File VirusTotal.pas
+2. Add VirusTotal.pas file to your project.
+3. Now you can work with the service https://www.virustotal.com.
 
-*Note:* Для работы необходима библиотека https://github.com/onryldz/x-superobject
 
-*Note:* Разрабатывается в Delphi X - работа в более ранних версиях не гарантируется.
-
-Дополнительная информация на сайте https://codmasters.ru/forum.php?mod=viewthread&tid=166
+*Note* Should work in Delphi XE and later
