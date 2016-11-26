@@ -238,19 +238,6 @@ begin
      begin
        scannerName := TJsonPair(arr.Items[i]).JsonString.Value;
        scanner := TJSONObject(TJsonPair(arr.Items[i]).JsonValue);
-{       handleScanner(scannerName,'Opera',result.Opera,scanner);
-       handleScanner(scannerName,'TrendMicro',result.TrendMicro,scanner);
-       handleScanner(scannerName,'Phishtank',result.Phishtank,scanner);
-       handleScanner(scannerName,'BitDefender',result.BitDefender,scanner);
-       handleScanner(scannerName,'MalwareDomainList',result.MalwareDomainList,scanner);
-       handleScanner(scannerName,'ParetoLogic',result.ParetoLogic,scanner);
-       handleScanner(scannerName,'Avira',result.Avira,scanner);
-       handleScanner(scannerName,'Wepawet',result.Wepawet,scanner);
-       handleScanner(scannerName,'Dr.Web',result.drWeb,scanner);
-       handleScanner(scannerName,'Malc0de Database',result.Malc0deDatabase,scanner);
-       handleScanner(scannerName,'G-Data',result.G_Data,scanner);
-       handleScanner(scannerName,'Websense ThreatSeeker',result.WebsenseThreatSeeker,scanner);
-}
        handleURLScanner(scannerName,'CLEAN MX',result.CLEANMX,scanner);
        handleURLScanner(scannerName,'Rising',result.Rising,scanner);
        handleURLScanner(scannerName,'OpenPhish',result.OpenPhish,scanner);
