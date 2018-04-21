@@ -10,7 +10,7 @@ type
     verbose_msg, resource, scan_id, permalink, sha256, sha1, md5: String;
   end;
 
-  TvtURLSend = class//Packed Record
+  TvtURLSend = class
   public
     verbose_msg, resource, url, scan_id, permalink: String;
     scan_date: String;
@@ -29,11 +29,14 @@ type
   end;
 
   TvtFileReport = class
+  private
+    procedure handleFileScans(inScans: TJsonObject);
+  public
     scan_id, sha1, resource, scan_date, permalink, verbose_msg, sha256, md5: String;
     response_code, total, positives: Integer;
     scans: TObjectList<TvtAntiVirusItemFile>;
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; override;
   end;
 
   TvtIPreport = Packed Record
@@ -44,6 +47,9 @@ type
   End;
 
   TvtURLReport = class
+  private
+    procedure handleURLScans(inScans : TJsonObject);
+  public
     verbose_msg, resource, url, scan_id, scan_date, permalink, filescan_id: String;
     response_code, total, positives: Integer;
     scans: TObjectList<TvtAntiVirusItemURL>;
@@ -58,8 +64,6 @@ type
     SERVER = 'https://www.virustotal.com/vtapi/v2/';
   private
     FApiKey: string;
-    procedure handleURLScans(scanlist : TObjectList<TvtAntiVirusItemURL>; scans : TJsonObject);
-    procedure handleFileScans(scanList : TObjectList<TvtAntiVirusItemFile>; scans : TJsonObject);
   public
     function ScanFile(const FileName: string): TvtFileSend;
     function RescanFile(const Hash: string): TvtFileSend; overload;
@@ -92,11 +96,10 @@ end;
 
 destructor TVirusTotalAPI.Destroy;
 begin
-
   inherited;
 end;
 
-procedure TVirusTotalAPI.handleFileScans(scanList: TObjectList<TvtAntiVirusItemFile>; scans: TJsonObject);
+procedure TvtFileReport.handleFileScans(inScans: TJsonObject);
 var
   i : Integer;
   scanItem : TvtAntiVirusItemFile;
@@ -104,9 +107,9 @@ var
 begin
   for i := 0 to scans.Count-1 do
   begin
-    scanner := scans.Pairs[i].JsonValue as TJSONObject;
+    scanner := inScans.Pairs[i].JsonValue as TJSONObject;
     scanItem := TvtAntiVirusItemFile.Create;
-    scanItem.scanner := scans.Pairs[i].JsonString.Value;
+    scanItem.scanner := inScans.Pairs[i].JsonString.Value;
     if((scanner.Values['detected'] as TJSONBool).AsBoolean) then
     begin
       scanItem.detected := True;
@@ -117,21 +120,21 @@ begin
     end;
     scanItem.result := scanner.Values['result'].Value;
 
-    scanlist.Add(scanItem);
+    scans.Add(scanItem);
   end;
 end;
 
-procedure TVirusTotalAPI.handleURLScans(scanlist : TObjectList<TvtAntiVirusItemURL> ;scans : TJsonObject);
+procedure TvtURLReport.handleURLScans(inScans : TJsonObject);
 var
   i: Integer;
   scanner : TJsonObject;
   scanItem : TvtAntiVirusItemURL;
 begin
-  for i := 0 to scans.Count-1 do
+  for i := 0 to inScans.Count-1 do
   begin
-    scanner := scans.Pairs[i].JsonValue as TJSONObject;
+    scanner := inScans.Pairs[i].JsonValue as TJSONObject;
     scanItem := TvtAntiVirusItemURL.Create;
-    scanItem.scanner := scans.Pairs[i].JsonString.Value;
+    scanItem.scanner := inScans.Pairs[i].JsonString.Value;
     if((scanner.Values['detected'] as TJSONBool).AsBoolean) then
     begin
       scanItem.detected := True;
@@ -142,7 +145,7 @@ begin
     end;
     scanItem.result := scanner.Values['result'].Value;
 
-    scanlist.Add(scanItem);
+    scans.Add(scanItem);
   end;
 end;
 
@@ -171,7 +174,6 @@ var
   item          : TJsonObject;
   itemReport    : TvtURLReport;
   scans         : TJsonObject;
-  report        : TvtURLReport;
 begin
   HTTP := nil;
   Part := nil;
@@ -209,7 +211,7 @@ begin
         itemReport.total         := StrToInt(item.Values['total'].Value);
         itemReport.positives     := StrToInt(item.Values['positives'].Value);
         scans := (item.Values['scans'] as TJsonObject);
-        handleURLScans(itemReport.scans,scans);
+        itemReport.handleURLScans(scans);
         Result.Add(itemReport);
       end;
     end
@@ -228,8 +230,7 @@ begin
         itemReport.total         := StrToInt(jsonsingle.Values['total'].Value);
         itemReport.positives     := StrToInt(jsonsingle.Values['positives'].Value);
         scans := (jsonsingle.Values['scans'] as TJsonObject);
-        writeln(scans.ToJSON);
-        handleURLScans(itemReport.scans,scans);
+        itemReport.handleURLScans(scans);
         Result.Add(itemReport);
       end;
   finally
@@ -285,7 +286,7 @@ begin
         itemReport.total         := StrToInt(item.Values['total'].Value);
         itemReport.positives     := StrToInt(item.Values['positives'].Value);
         scans := (item.Values['scans'] as TJsonObject);
-        handleFileScans(itemReport.scans,scans);
+        itemReport.handleFileScans(scans);
         Result.Add(itemReport);
       end;
     end
@@ -305,7 +306,7 @@ begin
       itemReport.total         := StrToInt(jsonsingle.Values['total'].Value);
       itemReport.positives     := StrToInt(jsonsingle.Values['positives'].Value);
       scans := (jsonsingle.Values['scans'] as TJsonObject);
-      handleFileScans(itemReport.scans,scans);
+      itemReport.handleFileScans(scans);
       Result.Add(itemReport)
     end;
   finally
@@ -469,6 +470,7 @@ end;
 destructor TvtURLReport.Destroy;
 begin
   FreeAndNil(scans);
+  inherited;
 end;
 
 { TvtFileReport }
@@ -481,6 +483,7 @@ end;
 destructor TvtFileReport.Destroy;
 begin
   FreeAndNil(scans);
+  inherited;
 end;
 
 end.
