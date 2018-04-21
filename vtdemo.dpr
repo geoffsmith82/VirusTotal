@@ -4,32 +4,39 @@ program vtdemo;
 {$R *.res}
 
 uses
-  System.SysUtils,vcl.forms,
+  System.SysUtils,
+  vcl.forms,
+  System.Generics.Collections,
   VirusTotal in 'VirusTotal.pas';
 
 Var
   VT: TVirusTotalAPI;
-//  i : Integer;
-//  ResultScan: TArray<TvtURLReport>;
-//  ResultScan : TArray<TvtURLSend>;
+  i : Integer;
+  j : Integer;
+  ResultScan: TObjectList<TvtURLReport>;
   urls : TArray<String>;
   fileResult : TvtFileSend;
 begin
   VT := TVirusTotalAPI.Create;
   try
-    { TODO -oUser -cConsole Main : Insert code here }
-    setlength(urls,1);
+    setlength(urls,2);
     urls[0] := 'https://codmasters.ru/';
-//    urls[1] := 'https://www.tysontechnology.com.au';
-{    ResultScan := VT.reportURL(urls,False);
-    for i := 0 to length(resultscan)-1 do
+    urls[1] := 'https://www.tysontechnology.com.au';
+    ResultScan := VT.reportURL(urls,True);
+    for i := 0 to length(urls)-1 do
+    begin
+      for j := 0 to ResultScan[i].scans.Count - 1 do
       begin
-        Writeln('Opera: ', ResultScan[i].permalink);
-      end;}
-   fileResult := VT.ScanFile('C:\Programming\ZXing.Delphi\aTestApp\Win32\Debug\aTestApp.exe');
+        Writeln(ResultScan[i].scans[j].scanner);
+        Writeln(ResultScan[i].scans[j].detected);
+        Writeln(ResultScan[i].scans[j].result);
+      end;
+    end;
+    fileResult := VT.ScanFile('vtdemo.exe');
 
 
-//    Writeln('Opera: ', ResultScan.scans.Opera.result);
+    Writeln('sha256: ', fileResult.sha256);
+    Writeln('permalink:'+ fileResult.permalink);
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
