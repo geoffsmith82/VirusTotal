@@ -7,7 +7,8 @@ uses
   System.SysUtils,
   vcl.forms,
   System.Generics.Collections,
-  VirusTotal in 'VirusTotal.pas';
+  VirusTotal in 'VirusTotal.pas',
+  config in 'config.pas';
 
 Var
   VT: TVirusTotalAPI;
@@ -18,12 +19,14 @@ Var
   fileResult : TvtFileSend;
 begin
   VT := TVirusTotalAPI.Create;
+  VT.ApiKey := ConfigAPIKey;
   try
-    setlength(urls,2);
+  try
+    setlength(urls, 2);
     urls[0] := 'https://codmasters.ru/';
     urls[1] := 'https://www.tysontechnology.com.au';
-    ResultScan := VT.reportURL(urls,True);
-    for i := 0 to length(urls)-1 do
+    ResultScan := VT.reportURL(urls, True);
+    for i := 0 to length(urls) - 1 do
     begin
       for j := 0 to ResultScan[i].scans.Count - 1 do
       begin
@@ -41,6 +44,8 @@ begin
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
   end;
-  FreeAndNil(VT);
+  finally
+    FreeAndNil(VT);
+  end;
   Readln;
 end.
