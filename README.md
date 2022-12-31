@@ -1,5 +1,5 @@
 # VirusTotal
-
+![](/VirusTotalLogo.png)
 TVirusTotal - class to work with the VirusTotal service to check files and URL's for viruses and malware.
 
 How to Use
